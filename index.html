@@ -3,10 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Planner</title>
+    <title>SA Meal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2E7D32;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+            border-bottom: 2px solid #2E7D32;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2E7D32;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1B5E20;
+            box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #999;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #f9f9f9;
+            color: #666;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .inventory-item {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .item-details {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .item-remove {
+            background: #ffebee;
+            color: #d32f2f;
+            border: none;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .item-remove:hover {
+            background: #ffcdd2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .meal-card {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            border-left: 4px solid #2E7D32;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .meal-card::before {
+            content: "✓";
+            color: #2E7D32;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .meal-name {
+            font-weight: 500;
+            color: #1B5E20;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 0.75rem;
+            }
+
+            header {
+                padding: 1.5rem 1rem;
+            }
+
+            header h1 {
+                font-size: 24px;
+            }
+
+            .section {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Meal Planner</h1>
-    <p>Welcome to your meal planning application!</p>
+    <div class="container">
+        <header>
+            <h1>SA Meal Planner</h1>
+            <p>Plan meals from what you have at home</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="label">Total spent</div>
+                <div class="value" id="budget-total">R0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Items</div>
+                <div class="value" id="item-count">0</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Add item to pantry</h2>
+            <div class="form-group">
+                <label>Item name</label>
+                <input type="text" id="item-name" placeholder="e.g., eggs, noodles, mince">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="item-qty" placeholder="e.g., 3" step="0.1" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select id="item-unit">
+                        <option value="">Select unit</option>
+                        <option value="units">units</option>
+                        <option value="g">grams</option>
+                        <option value="ml">ml</option>
+                        <option value="kg">kg</option>
+                        <option value="l">litre</option>
+                        <option value="tbsp">tablespoons</option>
+                        <option value="tsp">teaspoons</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Price (Rand)</label>
+                <input type="number" id="item-price" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <button class="btn-primary" id="add-btn">Add to pantry</button>
+            <div class="error" id="error-msg"></div>
+        </div>
+
+        <div class="section">
+            <h2>Your pantry</h2>
+            <div id="inventory-list">
+                <div class="empty-state">
+                    <p>Add items to see them here</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Meals you can make</h2>
+            <div id="meal-suggestions">
+                <div class="empty-state">
+                    <p>Add items to see what meals you can make</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-secondary" id="clear-btn">Clear all items</button>
+    </div>
+
+    <script>
+        const recipes = {
+            "Noodles with egg and Viennas": {
+                ingredients: [
+                    { name: "instant noodles", qty: 1, unit: "units" },
+                    { name: "egg", qty: 1, unit: "units" },
+                    { name: "vienna sausage", qty: 2, unit: "units" }
+                ]
+            },
+            "Boerie rolls": {
+                ingredients: [
+                    { name: "boerewors", qty: 2, unit: "units" },
+                    { name: "bread roll", qty: 2, unit: "units" },
+                    { name: "onion", qty: 0.5, unit: "units" }
+                ]
+            },
+            "French toast with sweetcorn": {
+                ingredients: [
+                    { name: "bread", qty: 2, unit: "units" },
+                    { name: "egg", qty: 1, unit: "units" },
+                    { name: "milk", qty: 100, unit: "ml" },
+                    { name: "sweetcorn", qty: 100, unit: "g" }
+                ]
+            },
+            "Curry mince and rice": {
+                ingredients: [
+                    { name: "mince", qty: 500, unit: "g" },
+                    { name: "rice", qty: 200, unit: "g" },
+                    { name: "onion", qty: 1, unit: "units" },
+                    { name: "curry powder", qty: 1, unit: "tbsp" }
+                ]
+            },
+            "Tuna maid": {
+                ingredients: [
+                    { name: "tuna", qty: 1, unit: "units" },
+                    { name: "macaroni", qty: 200, unit: "g" },
+                    { name: "cheese", qty: 100, unit: "g" }
+                ]
+            },
+            "Chicken livers and rice": {
+                ingredients: [
+                    { name: "chicken livers", qty: 400, unit: "g" },
+                    { name: "rice", qty: 200, unit: "g" },
+                    { name: "onion", qty: 1, unit: "units" }
+                ]
+            },
+            "Corned beef with spaghetti": {
+                ingredients: [
+                    { name: "corned beef", qty: 1, unit: "units" },
+                    { name: "spaghetti", qty: 200, unit: "g" },
+                    { name: "onion", qty: 1, unit: "units" }
+                ]
+            },
+            "Fruit snack": {
+                ingredients: [
+                    { name: "fruit", qty: 1, unit: "units" }
+                ]
+            },
+            "Smoothie": {
+                ingredients: [
+                    { name: "fruit", qty: 1, unit: "units" },
+                    { name: "milk", qty: 200, unit: "ml" }
+                ]
+            }
+        };
+
+        let inventory = JSON.parse(localStorage.getItem("saInventory")) || [];
+
+        function normalizeQty(itemQty, itemUnit, recipeQty, recipeUnit) {
+            if (itemUnit === recipeUnit) return itemQty >= recipeQty;
+            if ((itemUnit === "kg" && recipeUnit === "g") || (itemUnit === "l" && recipeUnit === "ml")) {
+                return itemQty * 1000 >= recipeQty;
+            }
+            return true;
+        }
+
+        function canMakeMeal(recipeName) {
+            const recipe = recipes[recipeName];
+            let matchCount = 0;
+
+            for (const reqIngredient of recipe.ingredients) {
+                for (const invItem of inventory) {
+                    if (invItem.name.toLowerCase().includes(reqIngredient.name.toLowerCase()) ||
+                        reqIngredient.name.toLowerCase().includes(invItem.name.toLowerCase())) {
+                        if (normalizeQty(invItem.qty, invItem.unit, reqIngredient.qty, reqIngredient.unit)) {
+                            matchCount++;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return matchCount >= Math.ceil(recipe.ingredients.length * 0.7);
+        }
+
+        function updateUI() {
+            document.getElementById("item-count").textContent = inventory.length;
+            const total = inventory.reduce((sum, item) => sum + (item.price || 0), 0);
+            document.getElementById("budget-total").textContent = "R" + total.toFixed(2);
+
+            const inventoryList = document.getElementById("inventory-list");
+            if (inventory.length === 0) {
+                inventoryList.innerHTML = '<div class="empty-state"><p>Add items to see them here</p></div>';
+            } else {
+                inventoryList.innerHTML = inventory.map((item, idx) => `
+                    <div class="inventory-item">
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-details">${item.qty} ${item.unit} • R${(item.price || 0).toFixed(2)}</div>
+                        </div>
+                        <button class="item-remove" onclick="removeItem(${idx})">✕</button>
+                    </div>
+                `).join("");
+            }
+
+            updateMealSuggestions();
+        }
+
+        function updateMealSuggestions() {
+            const canMake = Object.keys(recipes).filter(meal => canMakeMeal(meal));
+
+            const mealDiv = document.getElementById("meal-suggestions");
+            if (canMake.length === 0) {
+                mealDiv.innerHTML = '<div class="empty-state"><p>Add more items to see meal suggestions</p></div>';
+            } else {
+                mealDiv.innerHTML = canMake.map(meal => `
+                    <div class="meal-card">
+                        <div class="meal-name">${meal}</div>
+                    </div>
+                `).join("");
+            }
+        }
+
+        function removeItem(idx) {
+            inventory.splice(idx, 1);
+            localStorage.setItem("saInventory", JSON.stringify(inventory));
+            updateUI();
+        }
+
+        document.getElementById("add-btn").addEventListener("click", function() {
+            const name = document.getElementById("item-name").value.trim();
+            const qty = parseFloat(document.getElementById("item-qty").value);
+            const unit = document.getElementById("item-unit").value;
+            const price = parseFloat(document.getElementById("item-price").value) || 0;
+            const errorMsg = document.getElementById("error-msg");
+
+            errorMsg.style.display = "none";
+
+            if (!name) {
+                errorMsg.textContent = "Enter item name";
+                errorMsg.style.display = "block";
+                return;
+            }
+            if (!qty || qty <= 0) {
+                errorMsg.textContent = "Enter valid quantity";
+                errorMsg.style.display = "block";
+                return;
+            }
+            if (!unit) {
+                errorMsg.textContent = "Select a unit";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            inventory.push({ name, qty, unit, price });
+            localStorage.setItem("saInventory", JSON.stringify(inventory));
+
+            document.getElementById("item-name").value = "";
+            document.getElementById("item-qty").value = "";
+            document.getElementById("item-unit").value = "";
+            document.getElementById("item-price").value = "";
+
+            updateUI();
+        });
+
+        document.getElementById("clear-btn").addEventListener("click", function() {
+            if (confirm("Clear all items from pantry?")) {
+                inventory = [];
+                localStorage.setItem("saInventory", JSON.stringify(inventory));
+                updateUI();
+            }
+        });
+
+        updateUI();
+    </script>
 </body>
 </html>
